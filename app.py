@@ -3,10 +3,11 @@ import json
 import os
 import shutil
 import base64
-from source import * 
+from source import *
 
 # Page Configuration
-st.set_page_config(page_title="QuLab: Lab 9: Agent Runtime Constraint Simulator", layout="wide")
+st.set_page_config(
+    page_title="QuLab: Lab 9: Agent Runtime Constraint Simulator", layout="wide")
 
 # Sidebar Header
 st.sidebar.image("https://www.quantuniversity.com/assets/img/logo5.jpg")
@@ -38,13 +39,15 @@ if 'page' not in st.session_state:
 
 # --- Sidebar Logic ---
 st.sidebar.markdown(f"## Configuration")
-st.session_state['openai_api_key'] = st.sidebar.text_input("OpenAI API Key (Optional)", type="password", value=st.session_state['openai_api_key'])
+st.session_state['openai_api_key'] = st.sidebar.text_input(
+    "OpenAI API Key (Optional)", type="password", value=st.session_state['openai_api_key'])
 
 st.sidebar.markdown(f"---")
 st.sidebar.markdown(f"## Navigation")
 
 # Navigation Selection
-nav_options = ["Overview", "Tool Registry Editor", "Policy Editor", "Task Runner", "Simulation & Results", "Export Panel"]
+nav_options = ["Overview", "Tool Registry Editor", "Policy Editor",
+               "Task Runner", "Simulation & Results", "Export Panel"]
 try:
     current_index = nav_options.index(st.session_state['page'])
 except ValueError:
@@ -84,7 +87,7 @@ if st.sidebar.button("Initialize/Reset Sample Data"):
     st.session_state['current_run_output_dir'] = None
 
     st.sidebar.success("Sample data initialized!")
-    st.session_state['page'] = 'Overview' # Navigate to overview after reset
+    st.session_state['page'] = 'Overview'  # Navigate to overview after reset
     st.rerun()
 
 # --- Page Content ---
@@ -100,7 +103,8 @@ if st.session_state['page'] == "Overview":
     st.markdown(f"This lab operationalizes agentic AI risk control by simulating an autonomous agent operating under explicit runtime constraints, policies, and approvals.")
     st.markdown(f"It answers the enterprise question:")
     st.markdown(f"> Can this agent be trusted to act autonomously without violating safety, cost, or authorization boundaries—and can we audit every step it takes?")
-    st.markdown(f"This lab treats agents as stateful systems, not prompts with loops.")
+    st.markdown(
+        f"This lab treats agents as stateful systems, not prompts with loops.")
 
 # 2. Tool Registry Editor Page
 elif st.session_state['page'] == "Tool Registry Editor":
@@ -109,7 +113,8 @@ elif st.session_state['page'] == "Tool Registry Editor":
     st.markdown(f"For instance, a 'MarketDataAPI_Read' tool would be `read-only` and `low` risk, while a 'Portfolio_Update' tool would be `write` and `critical` risk. This distinction is crucial for setting up our guardrails.")
 
     st.markdown(r"$$\text{Authorization Matrix} = \begin{bmatrix}T_1 & A(T_1) & R(T_1) \\T_2 & A(T_2) & R(T_2) \\\vdots & \vdots & \vdots \\T_N & A(T_N) & R(T_N) \\ \end{bmatrix}$$")
-    st.markdown(r"where $T_i$ represents tool $i$, $A(T_i)$ is its access level, and $R(T_i)$ is its risk class.")
+    st.markdown(
+        r"where $T_i$ represents tool $i$, $A(T_i)$ is its access level, and $R(T_i)$ is its risk class.")
 
     st.markdown(f"The purpose of defining this registry is to establish the base capabilities and inherent risks of each function the agent might invoke. This forms the first layer of our security model.")
     st.markdown(f"---")
@@ -120,7 +125,7 @@ elif st.session_state['page'] == "Tool Registry Editor":
         edited_tool_registry = st.data_editor(
             st.session_state['tool_registry'],
             num_rows="dynamic",
-            use_container_width=True,
+            width='stretch',
             key="tool_registry_editor",
             column_config={
                 "tool_name": st.column_config.TextColumn("Tool Name", required=True),
@@ -146,15 +151,22 @@ elif st.session_state['page'] == "Policy Editor":
     st.markdown(f"Now that we know what tools our agent *can* potentially use, it's time to define the strict rules it *must* follow. As a Platform Engineer, I configure the `agent_policy.json` to enforce critical guardrails like allowed tools, maximum execution steps, budget limits (representing cost in tokens or compute), and explicit approval gates for sensitive operations.")
     st.markdown(f"This policy is the cornerstone of our agent's safe operation. Without it, an autonomous agent could easily spiral out of control, incurring excessive costs or performing unauthorized actions. For instance, we'll ensure the Market Data Analyst Agent cannot access the `System_Config_Change` tool, and any `Portfolio_Update` action requires explicit human approval due to its `critical` risk class.")
 
-    st.markdown(r"$$\text{Policy Function} P(action, state) \rightarrow \text{Decision} \in \{\text{Approved, Denied, Approval Required}\}$$")
-    st.markdown(r"where the decision is based on conditions like tool permission, step limit, budget limit, and approval gate checks.")
+    st.markdown(
+        r"$$\text{Policy Function} P(action, state) \rightarrow \text{Decision} \in \{\text{Approved, Denied, Approval Required}\}$$")
+    st.markdown(
+        r"where the decision is based on conditions like tool permission, step limit, budget limit, and approval gate checks.")
     st.markdown(r"The decision is based on a set of logical conditions:")
-    st.markdown(r"*   **Tool Permission Check:** Is $T_{\text{proposed}} \in T_{\text{allowed}}$?")
-    st.markdown(r"*   **Step Limit Check:** Is $S_{\text{current}} < S_{\text{max}}$?")
-    st.markdown(r"*   **Budget Limit Check:** Is $C_{\text{action}} + C_{\text{current}} \leq C_{\text{max}}$?")
-    st.markdown(r"*   **Approval Gate Check:** Is $R(T_{\text{proposed}}) \geq R_{\text{threshold}}$ or $A(T_{\text{proposed}}) \in A_{\text{approval\_required}}$?")
+    st.markdown(
+        r"*   **Tool Permission Check:** Is $T_{\text{proposed}} \in T_{\text{allowed}}$?")
+    st.markdown(
+        r"*   **Step Limit Check:** Is $S_{\text{current}} < S_{\text{max}}$?")
+    st.markdown(
+        r"*   **Budget Limit Check:** Is $C_{\text{action}} + C_{\text{current}} \leq C_{\text{max}}$?")
+    st.markdown(
+        r"*   **Approval Gate Check:** Is $R(T_{\text{proposed}}) \geq R_{\text{threshold}}$ or $A(T_{\text{proposed}}) \in A_{\text{approval\_required}}$?")
 
-    st.markdown(f"If any of these conditions are not met, a violation or approval requirement is triggered.")
+    st.markdown(
+        f"If any of these conditions are not met, a violation or approval requirement is triggered.")
     st.markdown(f"---")
 
     st.markdown(f"### Current Agent Policy Configuration")
@@ -162,11 +174,13 @@ elif st.session_state['page'] == "Policy Editor":
         current_policy = st.session_state['agent_policy']
 
         # Allowed Tools
-        all_available_tools = [tool['tool_name'] for tool in st.session_state['tool_registry']]
+        all_available_tools = [tool['tool_name']
+                               for tool in st.session_state['tool_registry']]
         current_policy['allowed_tools'] = st.multiselect(
             "Allowed Tools",
             options=all_available_tools,
-            default=[t for t in current_policy.get('allowed_tools', []) if t in all_available_tools],
+            default=[t for t in current_policy.get(
+                'allowed_tools', []) if t in all_available_tools],
             key="policy_allowed_tools"
         )
 
@@ -187,16 +201,18 @@ elif st.session_state['page'] == "Policy Editor":
         )
 
         st.markdown(f"### Approval Requirements")
-        
+
         # Initialize nested structure if missing
         if 'approval_required_for' not in current_policy:
-            current_policy['approval_required_for'] = {'access_levels': [], 'risk_classes': []}
-            
+            current_policy['approval_required_for'] = {
+                'access_levels': [], 'risk_classes': []}
+
         # Approval Required for Access Levels
         current_policy['approval_required_for']['access_levels'] = st.multiselect(
             "Approval Required for Access Levels",
             options=["read-only", "write", "execute"],
-            default=current_policy.get('approval_required_for', {}).get('access_levels', []),
+            default=current_policy.get(
+                'approval_required_for', {}).get('access_levels', []),
             key="policy_approval_access_levels"
         )
 
@@ -204,14 +220,16 @@ elif st.session_state['page'] == "Policy Editor":
         current_policy['approval_required_for']['risk_classes'] = st.multiselect(
             "Approval Required for Risk Classes",
             options=["low", "medium", "high", "critical"],
-            default=current_policy.get('approval_required_for', {}).get('risk_classes', []),
+            default=current_policy.get(
+                'approval_required_for', {}).get('risk_classes', []),
             key="policy_approval_risk_classes"
         )
 
         # Escalation Rule
         current_policy['escalation_rule'] = st.text_input(
             "Escalation Rule (e.g., Notify Security Team)",
-            value=current_policy.get('escalation_rule', "Notify Security Team and Terminate Agent"),
+            value=current_policy.get(
+                'escalation_rule', "Notify Security Team and Terminate Agent"),
             key="policy_escalation_rule"
         )
 
@@ -226,9 +244,11 @@ elif st.session_state['page'] == "Task Runner":
     st.markdown(f"# 5. Designing Test Scenarios: Defining Agent Tasks")
     st.markdown(f"With our tools and policies in place, the next crucial step is to define specific tasks for our agent to perform in the simulation. These `task_definitions.json` are not just random assignments; they are carefully crafted test cases designed to validate our policies under different conditions. As a Platform Engineer, I need to ensure these tasks will trigger:")
     st.markdown(f"1.  A standard, compliant execution.")
-    st.markdown(f"2.  A policy violation (e.g., attempting a disallowed tool or exceeding limits).")
+    st.markdown(
+        f"2.  A policy violation (e.g., attempting a disallowed tool or exceeding limits).")
     st.markdown(f"3.  A scenario requiring explicit human approval.")
-    st.markdown(f"This strategic task definition is key to thoroughly stress-testing our guardrails.")
+    st.markdown(
+        f"This strategic task definition is key to thoroughly stress-testing our guardrails.")
     st.markdown(f"---")
 
     st.markdown(f"### Current Task Definitions")
@@ -237,15 +257,14 @@ elif st.session_state['page'] == "Task Runner":
         edited_tasks = st.data_editor(
             st.session_state['task_definitions'],
             num_rows="dynamic",
-            use_container_width=True,
+            width='stretch',
             key="task_definitions_editor",
             column_config={
                 "task_id": st.column_config.TextColumn("Task ID", required=True),
                 "task_description": st.column_config.TextColumn("Description", required=True),
                 "expected_actions": st.column_config.JsonColumn(
                     "Expected Actions (JSON Array)",
-                    help="e.g., [{\"tool_name\": \"MarketDataAPI_Read\", \"params\": {\"query\": \"tech stock trends\"}, \"cost\": 10}]",
-                    min_width=200, required=True
+                    help="e.g., [{\"tool_name\": \"MarketDataAPI_Read\", \"params\": {\"query\": \"tech stock trends\"}, \"cost\": 10}]"
                 ),
                 "expected_outcome": st.column_config.TextColumn("Expected Outcome")
             }
@@ -254,13 +273,15 @@ elif st.session_state['page'] == "Task Runner":
             st.session_state['task_definitions'] = edited_tasks
             st.success("Task definitions updated in session state!")
     else:
-        st.info("Task definitions are empty. Please initialize sample data or add tasks.")
+        st.info(
+            "Task definitions are empty. Please initialize sample data or add tasks.")
 
     st.markdown(f"---")
     st.markdown(f"### Run Simulation")
     if st.button("Run Agent Simulation", type="primary"):
         if not st.session_state['tool_registry'] or not st.session_state['agent_policy'] or not st.session_state['task_definitions']:
-            st.error("Please ensure Tool Registry, Agent Policy, and Task Definitions are loaded/configured before running.")
+            st.error(
+                "Please ensure Tool Registry, Agent Policy, and Task Definitions are loaded/configured before running.")
         else:
             with st.spinner("Running agent simulation... This may take a moment."):
                 # Re-create sample files to populate global MOCK_TOOL_FUNCTIONS in source.py
@@ -279,63 +300,81 @@ elif st.session_state['page'] == "Task Runner":
                 st.session_state['run_id'] = simulator.run_id
                 st.session_state['current_run_output_dir'] = simulator.current_run_output_dir
 
-            st.success(f"Simulation complete! Run ID: `{st.session_state['run_id']}`. Navigate to 'Simulation & Results' to view findings.")
-            st.session_state['page'] = 'Simulation & Results' # Auto-navigate
+            st.success(
+                f"Simulation complete! Run ID: `{st.session_state['run_id']}`. Navigate to 'Simulation & Results' to view findings.")
+            st.session_state['page'] = 'Simulation & Results'  # Auto-navigate
             st.rerun()
 
 # 5. Simulation & Results Page
 elif st.session_state['page'] == "Simulation & Results":
-    st.markdown(f"# 6. The Policy Enforcer: Implementing the Agent State Machine & Policy Engine")
+    st.markdown(
+        f"# 6. The Policy Enforcer: Implementing the Agent State Machine & Policy Engine")
     st.markdown(f"This is the engineering core of our validation. As a Platform Engineer, I need to implement a robust `AgentSimulator` that models the agent's behavior as a deterministic state machine. Crucially, before *each* simulated action, a `PolicyEngine` must intercede to check for violations against our defined `agent_policy.json` and `tool_registry.json`.")
     st.markdown(f"The agent will transition through states like `INIT`, `PLAN`, `ACT`, `REVIEW`, `APPROVAL_REQUIRED`, `COMPLETE`, or `VIOLATION`. This state machine ensures every decision and its outcome is traceable.")
 
-    st.markdown(r"$$\text{State Transition Function} \delta(S_t, A_t, P_{\text{outcome}})$$")
-    st.markdown(r"where $S_t$ is the current state, $A_t$ is the proposed action, and $P_{\text{outcome}}$ is the policy engine's decision.")
+    st.markdown(
+        r"$$\text{State Transition Function} \delta(S_t, A_t, P_{\text{outcome}})$$")
+    st.markdown(
+        r"where $S_t$ is the current state, $A_t$ is the proposed action, and $P_{\text{outcome}}$ is the policy engine's decision.")
     st.markdown(r"For each step $t$:")
     st.markdown(r"1.  Agent proposes action $A_t$.")
-    st.markdown(r"2.  Policy Engine evaluates $P(A_t, S_t) \rightarrow P_{\text{outcome}}$.")
-    st.markdown(r"3.  New state $S_{\text{t+1}} = \delta(S_t, A_t, P_{\text{outcome}})$.")
+    st.markdown(
+        r"2.  Policy Engine evaluates $P(A_t, S_t) \rightarrow P_{\text{outcome}}$.")
+    st.markdown(
+        r"3.  New state $S_{\text{t+1}} = \delta(S_t, A_t, P_{\text{outcome}})$.")
     st.markdown(r"Example transitions:")
-    st.markdown(r"*   If $P_{\text{outcome}} = \text{APPROVED}$, then $S_{\text{t+1}} = \text{ACT}$.")
-    st.markdown(r"*   If $P_{\text{outcome}} = \text{REQUIRES\_APPROVAL}$, then $S_{\text{t+1}} = \text{APPROVAL\_REQUIRED}$.")
-    st.markdown(r"*   If $P_{\text{outcome}} = \text{DENIED\_VIOLATION}$, then $S_{\text{t+1}} = \text{VIOLATION}$.")
+    st.markdown(
+        r"*   If $P_{\text{outcome}} = \text{APPROVED}$, then $S_{\text{t+1}} = \text{ACT}$.")
+    st.markdown(
+        r"*   If $P_{\text{outcome}} = \text{REQUIRES\_APPROVAL}$, then $S_{\text{t+1}} = \text{APPROVAL\_REQUIRED}$.")
+    st.markdown(
+        r"*   If $P_{\text{outcome}} = \text{DENIED\_VIOLATION}$, then $S_{\text{t+1}} = \text{VIOLATION}$.")
     st.markdown(r"The `PolicyEngine` also tracks resource consumption (steps, budget). For budget, if $C_{\text{action}}$ is the cost of the proposed action and $B_{\text{current}}$ is the remaining budget, the new budget $B_{\text{next}} = B_{\text{current}} - C_{\text{action}}$. A violation occurs if $B_{\text{next}} < 0$. Similarly for steps, if $S_{\text{current}}$ is the current step count and $S_{\text{max}}$ is the maximum, a violation occurs if $S_{\text{current}} + 1 > S_{\text{max}}$.")
 
     st.markdown(f"---")
-    st.markdown(f"# 7. Putting Policies to the Test: Running Simulations and Tracing Decisions")
+    st.markdown(
+        f"# 7. Putting Policies to the Test: Running Simulations and Tracing Decisions")
     st.markdown(f"Now comes the moment of truth. As a Platform Engineer, I will instantiate our `AgentSimulator` with the tools, policies, and tasks we defined. Then, I will execute all the tasks to see how our agent behaves under the policy engine's strict supervision. Every step, every policy decision, and every state transition will be logged to an `execution_trace.json`, providing an audit-grade record of the agent's constrained execution.")
     st.markdown(f"This hands-on execution demonstrates how our theoretical policies translate into real-world (simulated) enforcement, providing critical feedback on the robustness of our guardrails.")
     st.markdown(f"---")
 
-    st.markdown(f"# 8. Auditing Agent Behavior: Analyzing Violations and Generating Reports")
+    st.markdown(
+        f"# 8. Auditing Agent Behavior: Analyzing Violations and Generating Reports")
     st.markdown(f"The simulation generated a wealth of data about the agent's behavior. My job as a Platform Engineer doesn't end with running the simulation; I must analyze the results, particularly the `violations_summary.json` and `execution_trace.json`, to confirm that policies were correctly enforced.")
     st.markdown(f"This step involves reviewing the audit logs to confirm that:")
     st.markdown(f"1.  Compliant actions proceeded without hindrance.")
-    st.markdown(f"2.  Disallowed tool usage was correctly identified and stopped.")
+    st.markdown(
+        f"2.  Disallowed tool usage was correctly identified and stopped.")
     st.markdown(f"3.  Budget and step limits were enforced.")
-    st.markdown(f"4.  Sensitive operations correctly triggered an `APPROVAL_REQUIRED` state.")
+    st.markdown(
+        f"4.  Sensitive operations correctly triggered an `APPROVAL_REQUIRED` state.")
     st.markdown(f"Finally, I will generate a comprehensive `session09_executive_summary.md` report and an `evidence_manifest.json` (with SHA-256 hashes for integrity), providing concrete proof to stakeholders that the agent is ready for deployment. This output is our deliverable, ensuring auditability and confidence in the agent's safety.")
     st.markdown(f"---")
 
-
-    st.markdown(f"### Simulation Results for Run ID: `{st.session_state['run_id'] if st.session_state['run_id'] else 'N/A'}`")
+    st.markdown(
+        f"### Simulation Results for Run ID: `{st.session_state['run_id'] if st.session_state['run_id'] else 'N/A'}`")
 
     if st.session_state['execution_trace']:
         st.markdown(f"#### Execution Trace")
-        st.dataframe(st.session_state['execution_trace'], use_container_width=True)
+        st.dataframe(
+            st.session_state['execution_trace'], width='stretch')
     else:
-        st.info("No simulation has been run yet or trace is empty. Please configure tasks and run the simulation.")
+        st.info(
+            "No simulation has been run yet or trace is empty. Please configure tasks and run the simulation.")
 
     if st.session_state['violations_summary']:
         st.markdown(f"#### Violation Summary")
-        st.dataframe(st.session_state['violations_summary'], use_container_width=True)
+        st.dataframe(
+            st.session_state['violations_summary'], width='stretch')
     else:
-        st.success("No violations or approval requirements detected in the last simulation run.")
+        st.success(
+            "No violations or approval requirements detected in the last simulation run.")
 
 # 6. Export Panel Page
 elif st.session_state['page'] == "Export Panel":
     st.markdown(f"# 9. Output Artifacts")
-    st.markdown(f"All generated output artifacts are stored in a run-specific directory within `reports/session09/`.")
+    st.markdown(
+        f"All generated output artifacts are stored in a run-specific directory within `reports/session09/`.")
     st.markdown(f"The following artifacts are produced:")
     st.markdown(f"- `tool_registry.json`")
     st.markdown(f"- `agent_policy.json`")
@@ -346,23 +385,28 @@ elif st.session_state['page'] == "Export Panel":
     st.markdown(f"- `evidence_manifest.json`")
     st.markdown(f"---")
     st.markdown(f"# 10. Evidence Manifest")
-    st.markdown(f"All artifacts within the evidence manifest are hashed with SHA-256 to ensure data integrity and auditability.")
+    st.markdown(
+        f"All artifacts within the evidence manifest are hashed with SHA-256 to ensure data integrity and auditability.")
     st.markdown(f"---")
 
     if st.session_state['current_run_output_dir'] and os.path.exists(st.session_state['current_run_output_dir']):
-        st.markdown(f"### Last Simulation Output (Run ID: `{st.session_state['run_id']}`)")
-        st.markdown(f"Artifacts located at: `{st.session_state['current_run_output_dir']}`")
+        st.markdown(
+            f"### Last Simulation Output (Run ID: `{st.session_state['run_id']}`)")
+        st.markdown(
+            f"Artifacts located at: `{st.session_state['current_run_output_dir']}`")
 
         # Create a zip archive of the output directory
         zip_file_name = f"Session_09_{st.session_state['run_id']}"
         # The simulator uses OUTPUT_DIR, we can reuse it if imported or construct path
         # Assuming OUTPUT_DIR is globally available from source.py or we just use path joining
-        base_output_dir = os.path.dirname(st.session_state['current_run_output_dir'])
-        
+        base_output_dir = os.path.dirname(
+            st.session_state['current_run_output_dir'])
+
         zip_path = shutil.make_archive(
-            os.path.join(base_output_dir, zip_file_name), # Base name for the archive
+            # Base name for the archive
+            os.path.join(base_output_dir, zip_file_name),
             'zip',                                 # Archive format
-            st.session_state['current_run_output_dir'] # Directory to archive
+            st.session_state['current_run_output_dir']  # Directory to archive
         )
 
         with open(zip_path, "rb") as f:
@@ -370,7 +414,7 @@ elif st.session_state['page'] == "Export Panel":
             b64_zip = base64.b64encode(bytes_data).decode()
             href = f'<a href="data:application/zip;base64,{b64_zip}" download="{os.path.basename(zip_path)}">Download All Artifacts as .zip</a>'
             st.markdown(href, unsafe_allow_html=True)
-            
+
             # Offer download button as an alternative for newer Streamlit versions
             st.download_button(
                 label="Download Artifacts Zip",
@@ -378,25 +422,30 @@ elif st.session_state['page'] == "Export Panel":
                 file_name=os.path.basename(zip_path),
                 mime="application/zip",
             )
-        
-        st.success(f"All artifacts for run `{st.session_state['run_id']}` bundled and ready for download.")
+
+        st.success(
+            f"All artifacts for run `{st.session_state['run_id']}` bundled and ready for download.")
 
         # Display executive summary content directly
-        executive_summary_path = os.path.join(st.session_state['current_run_output_dir'], "session09_executive_summary.md")
+        executive_summary_path = os.path.join(
+            st.session_state['current_run_output_dir'], "session09_executive_summary.md")
         if os.path.exists(executive_summary_path):
-            st.markdown(f"#### Executive Summary (`session09_executive_summary.md`)")
+            st.markdown(
+                f"#### Executive Summary (`session09_executive_summary.md`)")
             with open(executive_summary_path, 'r') as f:
                 st.code(f.read(), language='markdown')
 
         # Display evidence manifest content directly
-        evidence_manifest_path = os.path.join(st.session_state['current_run_output_dir'], "evidence_manifest.json")
+        evidence_manifest_path = os.path.join(
+            st.session_state['current_run_output_dir'], "evidence_manifest.json")
         if os.path.exists(evidence_manifest_path):
             st.markdown(f"#### Evidence Manifest (`evidence_manifest.json`)")
             with open(evidence_manifest_path, 'r') as f:
                 st.json(json.load(f))
 
     else:
-        st.info("No simulation results available for export. Please run a simulation first.")
+        st.info(
+            "No simulation results available for export. Please run a simulation first.")
 
 
 # License
